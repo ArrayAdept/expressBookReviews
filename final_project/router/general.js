@@ -85,26 +85,11 @@ public_users.get('/isbn/:isbn', async function (req, res) {
         });
     }
 });
-  
-
-// Get book details based on author
-public_users.get('/author/:author',function (req, res) {
-  const author = req.params.author;
-    const booksByAuthor = {};
-
-    Object.keys(books).forEach(function (isbn) {
-        if (books[isbn].author === author) {
-            booksByAuthor[isbn] = books[isbn];
-        }
-    });
-
-    res.send(JSON.stringify(booksByAuthor, null, 4));
-});
 
 
-// Get all books based on title
-public_users.get('/title/:title',function (req, res) {
-  const title = req.params.title;
+// Internal endpoint for books based on title
+public_users.get('/books/title/:title', function (req, res) {
+    const title = req.params.title;
     const booksByTitle = {};
 
     Object.keys(books).forEach(function (isbn) {
@@ -113,7 +98,32 @@ public_users.get('/title/:title',function (req, res) {
         }
     });
 
-    res.send(JSON.stringify(booksByTitle, null, 4));
+    if (Object.keys(booksByTitle).length > 0) {
+        res.json(booksByTitle);
+    } else {
+        res.status(404).json({
+            message: "Book not found"
+        });
+    }
+});
+
+
+// Get all books based on title
+// Implemented using Axios and Async/Await
+public_users.get('/title/:title', async function (req, res) {
+    const title = req.params.title;
+
+    try {
+        const response = await axios.get(
+            `http://localhost:5000/books/title/${encodeURIComponent(title)}`
+        );
+
+        res.json(response.data);
+    } catch (error) {
+        res.status(404).json({
+            message: "Book not found"
+        });
+    }
 });
 
 
