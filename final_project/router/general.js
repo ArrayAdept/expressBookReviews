@@ -87,6 +87,46 @@ public_users.get('/isbn/:isbn', async function (req, res) {
 });
 
 
+// Internal endpoint for books based on author
+public_users.get('/books/author/:author', function (req, res) {
+    const author = req.params.author;
+    const booksByAuthor = {};
+
+    Object.keys(books).forEach(function (isbn) {
+        if (books[isbn].author === author) {
+            booksByAuthor[isbn] = books[isbn];
+        }
+    });
+
+    if (Object.keys(booksByAuthor).length > 0) {
+        res.json(booksByAuthor);
+    } else {
+        res.status(404).json({
+            message: "Book not found"
+        });
+    }
+});
+
+
+// Get book details based on author
+// Implemented using Axios and Async/Await
+public_users.get('/author/:author', async function (req, res) {
+    const author = req.params.author;
+
+    try {
+        const response = await axios.get(
+            `http://localhost:5000/books/author/${encodeURIComponent(author)}`
+        );
+
+        res.json(response.data);
+    } catch (error) {
+        res.status(404).json({
+            message: "Book not found"
+        });
+    }
+});
+
+
 // Internal endpoint for books based on title
 public_users.get('/books/title/:title', function (req, res) {
     const title = req.params.title;
