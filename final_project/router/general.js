@@ -56,10 +56,34 @@ public_users.get('/', async function (req, res) {
 });
 
 
+// Internal endpoint for individual book data
+public_users.get('/books/:isbn', function (req, res) {
+    const isbn = req.params.isbn;
+
+    if (books[isbn]) {
+        res.json(books[isbn]);
+    } else {
+        res.status(404).json({
+            message: "Book not found"
+        });
+    }
+});
+
+
 // Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-  const isbn = req.params.isbn;
-    res.send(JSON.stringify(books[isbn], null, 4));
+// Implemented using Axios and Async/Await
+public_users.get('/isbn/:isbn', async function (req, res) {
+    const isbn = req.params.isbn;
+
+    try {
+        const response = await axios.get(`http://localhost:5000/books/${isbn}`);
+
+        res.json(response.data);
+    } catch (error) {
+        res.status(404).json({
+            message: "Book not found"
+        });
+    }
 });
   
 
